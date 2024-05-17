@@ -1,32 +1,33 @@
 <?php
 session_start();
 
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register'])) {
     $userEmail = $_POST['email'];
     $userPassword = $_POST['password'];
-
-    
     $hashedPassword = password_hash($userPassword, PASSWORD_DEFAULT);
 
-   
-    require_once 'database.php'; 
+    require_once 'database.php';
     $db = new database();
     $pdo = $db->getBdd();
 
-    $stmt = $pdo->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
-    if ($stmt->execute([$userEmail, $hashedPassword])) {
-        echo "Utilisateur enregistré avec succès. Veuillez vous connecter.";
-       
-        header('Location: login.php');
-        exit;
+    
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
+    $stmt->execute([$userEmail]);
+    if ($stmt->fetchColumn() > 0) {
+        $errorMessage = "Cet email est déjà utilisé.";
     } else {
-        echo "Erreur lors de l'enregistrement.";
+        
+        $stmt = $pdo->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
+        if ($stmt->execute([$userEmail, $hashedPassword])) {
+            $_SESSION['success_message'] = "Utilisateur enregistré avec succès. Veuillez vous connecter.";
+            header('Location: login.php');
+            exit;
+        } else {
+            $errorRegister = "Erreur lors de l'enregistrement.";
+        }
     }
 }
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -45,27 +46,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register'])) {
     <title>Register</title>
 </head>
 <body>
-
 <h1 class="text-logo"><span class="bi-shop"></span> Veggie Burger <span class="bi-shop"></span></h1>
-
 <div class="container admin">
     <div class="row">
         <h1><strong>Register</strong></h1>
-<?php if (!empty($errorMessage)) echo "<p>$errorMessage</p>"; ?>
-<?php if (!empty($errorRegister)) echo "<p>$errorRegister</p>"; ?>
-<form action="login.php" class="" role="form" method="post">
-
-<label for="email">E-mail :</label><br>
-<input type="email" class="form-control" id="email" name="email" placeholder="email" value="" required><br><br>
-<label for="password">Mot de passe :</label>
-<br>
-<input type="password" class="form-control" id="password" name="password" placeholder="mot de passe" value="" required>
-    </div>  
-   
-        <button type="submit" class="btn btn-primary" name="register">S'enregistrer</button>
-    
-</form>
+        <?php if (!empty($errorMessage)) echo "<p>$errorMessage</p>"; ?>
+        <?php if (!empty($errorRegister)) echo "<p>$errorRegister</p>"; ?>
+        <form action="register.php" method="post">
+            <label for="email">E-mail :</label><br>
+            <input type="email" class="form-control" id="email" name="email" required><br>
+            <label for="password">Mot de passe :</label><br>
+            <input type="password" class="form-control" id="password" name="password" required><br>
+            <button type="submit" class="btn btn-primary" name="register">S'enregistrer</button>
+        </form>
     </div>
-    
 </body>
 </html>
