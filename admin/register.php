@@ -1,24 +1,32 @@
 <?php
+session_start();
+
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register'])) {
-    
     $userEmail = $_POST['email'];
     $userPassword = $_POST['password'];
 
     
     $hashedPassword = password_hash($userPassword, PASSWORD_DEFAULT);
 
-    
+   
     require_once 'database.php'; 
     $db = new database();
     $pdo = $db->getBdd();
 
     $stmt = $pdo->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
-    $stmt->execute([$userEmail, $hashedPassword]);
-
-    echo "Utilisateur enregistré avec succès.";
+    if ($stmt->execute([$userEmail, $hashedPassword])) {
+        echo "Utilisateur enregistré avec succès. Veuillez vous connecter.";
+       
+        header('Location: login.php');
+        exit;
+    } else {
+        echo "Erreur lors de l'enregistrement.";
+    }
 }
-
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -43,8 +51,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register'])) {
 <div class="container admin">
     <div class="row">
         <h1><strong>Register</strong></h1>
-
-<form action="register.php" class="" role="form" method="post">
+<?php if (!empty($errorMessage)) echo "<p>$errorMessage</p>"; ?>
+<?php if (!empty($errorRegister)) echo "<p>$errorRegister</p>"; ?>
+<form action="login.php" class="" role="form" method="post">
 
 <label for="email">E-mail :</label><br>
 <input type="email" class="form-control" id="email" name="email" placeholder="email" value="" required><br><br>

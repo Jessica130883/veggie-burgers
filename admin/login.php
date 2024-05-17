@@ -1,3 +1,29 @@
+<?php
+session_start();
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
+    $userEmail = $_POST['email'];
+    $userPassword = $_POST['password'];
+
+    require_once 'database.php';
+    $db = new database();
+    $pdo = $db->getBdd();
+
+    $stmt = $pdo->prepare("SELECT password FROM users WHERE email = ?");
+    $stmt->execute([$userEmail]);
+    $user = $stmt->fetch();
+
+    if ($user && password_verify($userPassword, $user['password'])) {
+        $_SESSION['user_email'] = $userEmail;  // Enregistrement de l'email dans la session
+        header('Location: index.php');  // Redirection vers l'interface de gestion
+        exit;
+    } else {
+        // Échec de la connexion, afficher un message d'erreur
+        $errorMessage = "Identifiants incorrects, veuillez réessayer.";
+    }
+}
+?>
+
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -23,7 +49,8 @@
     <div class="row">
         <h1><strong>Login</strong></h1>
 
-<form action="index.php" class="" role="form" method="post">
+<?php if (!empty($errorMessage)) echo "<p>$errorMessage</p>"; ?>
+<form action="login.php" class="" role="form" method="POST">
 
 <label for="email">E-mail :</label><br>
 <input type="email" class="form-control" id="email" name="email" placeholder="email" value=""><br><br>
