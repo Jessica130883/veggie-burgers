@@ -14,11 +14,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
     $user = $stmt->fetch();
 
     if ($user && password_verify($userPassword, $user['password'])) {
-        $_SESSION['user_email'] = $userEmail;  // Enregistrement de l'email dans la session
-        header('Location: index.php');  // Redirection vers l'interface de gestion
+        $_SESSION['user_email'] = $userEmail;  
+        header('Location: index.php');  
         exit;
     } else {
-        // Échec de la connexion, afficher un message d'erreur
+        
         $errorMessage = "Identifiants incorrects, veuillez réessayer.";
     }
 }
