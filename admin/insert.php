@@ -131,7 +131,7 @@
                     <span class="help-inline"><?php echo $categoryError;?></span>
                 </div>
                 <br>
-                <div>
+                <div class="form-group">
                     <label class="form-label" for="image">Sélectionner une image:</label>
                     <input type="file" id="image" name="image"> 
                     <span class="help-inline"><?php echo $imageError;?></span>
