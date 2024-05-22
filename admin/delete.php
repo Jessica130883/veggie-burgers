@@ -1,6 +1,17 @@
 <?php
 require 'database.php';
 
+if(!empty($_GET['id'])) {
+    $id = checkInput($_GET['id']);
+}
+if(!empty($_POST)){
+    $id = checkInput($_POST['id']);
+    $dbInstance = new Database();
+    $pdo = $dbInstance->getBdd();
+    $statement = $pdo->prepare("DELETE FROM items WHERE id= ?");
+    $statement->execute(array($id));
+    header("Location: index.php");
+}
 
 function checkInput($data) {
     $data = trim($data);
@@ -27,7 +38,7 @@ function checkInput($data) {
     <link href='http://fonts.googleapis.com/css?family=Holtwood+One+SC' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
     <link rel="Stylesheet" href="../Stylesheet.css">
-    <title>Modifier un article</title>
+    <title>Supprimer un article</title>
 </head>
 
 <body>
